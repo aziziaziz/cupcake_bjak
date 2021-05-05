@@ -4,6 +4,7 @@ import App from './App.vue'
 import Axios from 'axios'
 import Router from 'vue-router'
 import Vuex from './js/vuex'
+import Cookies from 'vue-cookies'
 
 import Cupcake from './pages/cupcakePage'
 
@@ -15,6 +16,8 @@ ax.defaults.baseURL = 'http://localhost:3000'
 Vue.prototype.$axios = ax
 
 Vue.use(Router)
+Vue.use(Cookies)
+Vue.$cookies.config('6h')
 
 const router = new Router({
   routes: [
