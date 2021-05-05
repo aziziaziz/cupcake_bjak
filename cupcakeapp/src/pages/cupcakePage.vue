@@ -7,7 +7,7 @@
         <div>{{ c['name'] }}</div>
         <div class="price">RM {{ c['price'] ? c['price'].toFixed(2) : '' }}</div>
         <div>Available {{ c['quantity'] }}</div>
-        <button v-if="c['quantity'] > 0" class="add-cart">Add to Cart</button>
+        <button v-if="c['quantity'] > 0" class="add-cart" @click="addClicked">Add to Cart</button>
         <div v-else class="no-stock">Out Of Stock</div>
       </div>
       <div v-if="cupcakesList.length <= 0" class="no-cupcakes">
@@ -45,6 +45,11 @@ export default {
   props: {
   },
   methods: {
+    addClicked: function() {
+      var number = Math.random() * 25;
+      this.$store.state.cartCount = Math.ceil(number);
+      this.$cookies.set('test', Math.ceil(number));
+    }
   },
   async mounted() {
     var allCupcakes = await this.$axios.get('/cupcake');
