@@ -20,7 +20,10 @@ export default {
   methods: {
   },
   mounted() {
-    console.log(this.$store.state.cartCount);
+    var cartCount = this.$cookies.get('test');
+    if (cartCount) {
+      this.$store.state.cartCount = cartCount;
+    }
   }
 };
 </script>
