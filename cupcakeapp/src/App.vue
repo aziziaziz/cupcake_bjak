@@ -61,6 +61,7 @@
 </template>
 
 <script>
+/* eslint-disable */
 export default {
   components: {
   },
@@ -97,9 +98,9 @@ export default {
       this.$store.commit('countCart');
       this.$store.commit('countTotal');
     },
-    checkoutClicked: function() {
+    checkoutClicked: async function() {
       var isError = !this.name || !this.phone || !this.location;
-      if (!this.nameError) {
+      if (!this.name) {
         this.nameError = 'Please enter your name';
       }
       if (!this.phone) {
@@ -113,6 +114,36 @@ export default {
         console.log('error');
         return;
       }
+      
+      var toUpdate = [];
+      for (var g of this.$store.state.groupedListing) {
+        toUpdate.push({ id: g['id'], qty: g['qty'] });
+      }
+
+      var updated = await this.$axios.patch('/cupcake/update', toUpdate);
+      updated.data.forEach((u) => {
+        if (u['updated']) {
+          var currentCupcake = this.$store.state.cupcakeListing.filter(c => c['_id'] == u['id'])[0];
+          currentCupcake['quantity'] = u['newQuantity'];
+        }
+      });
+      this.$store.state.groupedListing = [];
+      sessionStorage.removeItem('cart');
+      this.$store.commit('countCart');
+      this.$store.commit('countTotal');
+
+      this.name = '';
+      this.phone = '';
+      this.location = '';
+
+      this.showDetails = false;
+      this.showCart = false;
+
+      Swal.fire(
+        'Checkout Complete',
+        `We've received your order. We will contact you soon. Thank you for shopping with us!`,
+        'success'
+      );
     }
   },
   async mounted() {
