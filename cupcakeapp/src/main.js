@@ -8,6 +8,10 @@ import Cookies from 'vue-cookies'
 
 import Cupcake from './pages/cupcakePage'
 
+import Input from './components/MyInput'
+
+Vue.component('Input', Input)
+
 Vue.config.productionTip = false
 
 const ax = Axios;
