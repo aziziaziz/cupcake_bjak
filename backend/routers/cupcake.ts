@@ -24,6 +24,7 @@ async function getDefaultCupCakes(req, res) {
 
 async function insertDefaultCupcakes(req, res) {
   var mongo = await listingConn.getCollection();
+  await mongo.deleteMany();
   var result = await mongo.insertMany(cup);
 
   if (result.insertedCount == cup.length) {
@@ -55,7 +56,7 @@ async function updateCupcake(req, res) {
       result.push({ updated: false, message: `Cannot find id ${b['id']}` });
     }
   }
-  
+
   res.send(result);
 }
 
