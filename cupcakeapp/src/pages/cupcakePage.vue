@@ -4,9 +4,9 @@
     <div class="cupcakes-container">
       <div class="cupcakes-card" v-for="(c, i) in cupcakesList" :key="i">
         <img class="cupcake-image" :class="{ 'image-no-stock': c['quantity'] == 0 }" :src="c['image']" alt="">
-        <div>{{ c['name'] }}</div>
-        <div class="price">RM {{ c['price'] ? c['price'].toFixed(2) : '' }}</div>
-        <div>Available {{ c['quantity'] }}</div>
+        <div class="cupcake-name">{{ c['name'] }}</div>
+        <div class="price">RM {{ c['price'] ? c['price'].toFixed(2) : '' }}/pc</div>
+        <div class="availability">Available: {{ c['quantity'] }} pcs</div>
         <button v-if="c['quantity'] > 0" class="add-cart" @click="addClicked">Add to Cart</button>
         <div v-else class="no-stock">Out Of Stock</div>
       </div>
@@ -23,23 +23,7 @@ export default {
   },
   data: function() {
     return {
-      cupcakesList: [
-        { name: 'cc1', image: 'https://imagesvc.meredithcorp.io/v3/mm/image?q=85&c=sc&poi=face&w=550&h=275&url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F9%2F2015%2F02%2FHD-200805-r-chocolate-cupcake.jpg', description: '', quantity: 5 },
-        { name: 'cc2 try longer name', image: '', description: 'asd with longer description here is longer', quantity: 5 },
-        { name: 'cc3', image: '', description: 'asdas', quantity: 10 },
-        { name: 'cc4', image: '', description: '', quantity: 8 },
-        { name: 'cc5', image: 'https://cdn.sallysbakingaddiction.com/wp-content/uploads/2017/06/moist-chocolate-cupcakes-5.jpg', description: '', quantity: 0 },
-        { name: 'cc1', image: '', description: '', quantity: 5 },
-        { name: 'cc2 try longer name', image: '', description: 'asd with longer description here is longer', quantity: 5 },
-        { name: 'cc3', image: '', description: 'asdas', quantity: 10 },
-        { name: 'cc4', image: '', description: '', quantity: 8 },
-        { name: 'cc5', image: '', description: '', quantity: 0 },
-        { name: 'cc1', image: '', description: '', quantity: 5 },
-        { name: 'cc2 try longer name', image: '', description: 'asd with longer description here is longer', quantity: 5 },
-        { name: 'cc3', image: '', description: 'asdas', quantity: 10 },
-        { name: 'cc4', image: '', description: '', quantity: 8 },
-        { name: 'cc5', image: '', description: '', quantity: 0 },
-      ]
+      cupcakesList: []
     }
   },
   props: {
@@ -52,7 +36,7 @@ export default {
     }
   },
   async mounted() {
-    var allCupcakes = await this.$axios.get('/cupcake');
+    var allCupcakes = await this.$axios.get('/cupcake/get');
     this.cupcakesList = allCupcakes.data;
   }
 };
@@ -73,7 +57,6 @@ $card-size: 200px;
   font-weight: bold;
   width: 100%;
   text-align: center;
-  margin-bottom: 10px;
 }
 
 .cupcakes-container {
@@ -105,9 +88,14 @@ $card-size: 200px;
   opacity: 0.5;
 }
 
-.price {
+.price, .cupcake-name {
   text-align: center;
   width: 100%;
+  font-weight: bold;
+}
+
+.cupcake-name {
+  font-size: 1.2em;
 }
 
 .add-cart, .no-stock {
@@ -122,6 +110,7 @@ $card-size: 200px;
   background-color: lime;
   padding: 0 15px;
   cursor: pointer;
+  font-weight: bold;
 }
 
 .no-stock {
@@ -137,7 +126,7 @@ $card-size: 200px;
 
 @media only screen and (max-width: 500px) {
   .title {
-    font-size: 1.2em;
+    font-size: 1.3em;
   }
 }
 </style>
