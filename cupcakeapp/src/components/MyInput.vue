@@ -86,7 +86,7 @@ export default {
 <style lang="scss" scoped>
 .rz-input-main {
   padding-bottom: 3px;
-  height: 32px;
+  height: 40px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -107,7 +107,7 @@ export default {
 
   > .placeholder-top {
     font-size: 0.75em;
-    transform: translate(0, 5px);
+    transform: translate(0, 8px);
     padding-left: 7px;
     opacity: 1;
   }
@@ -115,7 +115,7 @@ export default {
   > .placeholder-bottom {
     font-size: 1em;
     opacity: 0.5;
-    transform: translate(5px, 18px);
+    transform: translate(5px, 28px);
   }
 
   > input {
@@ -181,7 +181,7 @@ export default {
     background-color: gray;
     color: white;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
     font-size: 9px;
     border-radius: 100%;
