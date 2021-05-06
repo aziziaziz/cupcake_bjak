@@ -1,5 +1,5 @@
 {
-  "watch": ["src", "routers", "modules"],
-  "ext": "ts",
+  "watch": [],
+  "ext": "*",
   "exec": "ts-node ./src/index.ts"
 }
