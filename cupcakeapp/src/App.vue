@@ -1,13 +1,62 @@
 <template>
   <div class="app-main">
     <div class="top-bar">
-      <div class="cart-icon">
+      <div class="cart-icon" @click="showCart = true">
         <img src="./assets/cart.png" alt="">
         <div class="cart-count" v-if="$store.state.cartCount > 0">{{ $store.state.cartCount }}</div>
       </div>
     </div>
     <router-view style="margin-bottom: 60px"></router-view>
     <div class="bottom-bar"></div>
+    <transition name="fade">
+      <div v-if="showCart" class="cart-section cart-background" @click="showCart = false"></div>
+    </transition>
+    <transition name="slide">
+      <div v-if="showCart" class="cart-section cart-container">
+        <img class="close-icon" src="./assets/close.png" alt="" @click="showCart = false">
+        <div class="cart-title">Your cart</div>
+        <div v-if="$store.state.groupedListing.length <= 0">Ooops nothing in your cart</div>
+        <div class="cart-list" v-for="(c, i) in $store.state.groupedListing" :key="i">
+          <div>{{ c['cupcake']['name'] }}</div>
+          <img class="small-img" :src="c['cupcake']['image']" alt="">
+          <div class="qty-container">
+            <div class="add-minus-button" @click="changeQuantity(c, false)">-</div>
+            <div class="qty">{{ c['qty'] }}</div>
+            <div class="add-minus-button" @click="changeQuantity(c, true)">+</div>
+            <span class="total-per-item">RM {{ (c['qty'] * c['cupcake']['price']).toFixed(2) }}</span>
+          </div>
+        </div>
+        <div style="height: 50px"></div>
+        <div class="pricing-table">
+          <div class="pricing">
+            <div class="label">Subtotal</div>
+            <div class="price">{{ $store.state.subtotal.toFixed(2) }}</div>
+          </div>
+          <div class="pricing">
+            <div class="label">SST 6%</div>
+            <div class="price">{{ $store.state.sst.toFixed(2) }}</div>
+          </div>
+          <div class="horizontal-line"></div>
+          <div class="pricing">
+            <div class="label">Total</div>
+            <div class="price">RM {{ $store.state.total.toFixed(2) }}</div>
+          </div>
+        </div>
+        <button class="checkout-btn" @click="showDetails = true">Checkout</button>
+      </div>
+    </transition>
+    <div v-if="showDetails" class="details-popup">
+      <div class="details-content">
+        <div class="title">Checkout</div>
+        <div class="description">You are about to checkout a total of<br/>RM {{ $store.state.total.toFixed(2) }}</div>
+        <div>Please fill in your details below</div>
+        <Input placeholder="Name" :text.sync="name" :required="true" :errorMessage.sync="nameError" />
+        <Input placeholder="Phone Number" :text.sync="phone" :required="true" :errorMessage.sync="phoneError" />
+        <Input placeholder="Location" :text.sync="location" :required="true" :errorMessage.sync="locationError" />
+        <button @click="checkoutClicked">Confirm Checkout</button>
+        <button class="cancel" @click="showDetails = false">Cancel</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -15,14 +64,72 @@
 export default {
   components: {
   },
+  data: function() {
+    return {
+      showCart: false,
+      showDetails: false,
+
+      name: '',
+      phone: '',
+      location: '',
+
+      nameError: '',
+      phoneError: '',
+      locationError: '',
+    }
+  },
   props: {
   },
   methods: {
+    changeQuantity: function(item, add) {
+      if (add) {
+        item['qty']++;
+      } else {
+        item['qty']--;
+
+        if (item['qty'] == 0) {
+          var index = this.$store.state.groupedListing.indexOf(item);
+          this.$store.state.groupedListing.splice(index, 1);
+        }
+      }
+      
+      sessionStorage.setItem('cart', JSON.stringify(this.$store.state.groupedListing));
+      this.$store.commit('countCart');
+      this.$store.commit('countTotal');
+    },
+    checkoutClicked: function() {
+      var isError = !this.name || !this.phone || !this.location;
+      if (!this.nameError) {
+        this.nameError = 'Please enter your name';
+      }
+      if (!this.phone) {
+        this.phoneError = 'Please enter your phone number';
+      }
+      if (!this.location) {
+        this.locationError = 'Please tell us your location';
+      }
+
+      if (isError) {
+        console.log('error');
+        return;
+      }
+    }
   },
-  mounted() {
-    var cartCount = this.$cookies.get('test');
-    if (cartCount) {
-      this.$store.state.cartCount = cartCount;
+  async mounted() {
+    var allCupcakes = await this.$axios.get('/cupcake/get');
+    this.$store.state.cupcakeListing = allCupcakes.data;
+    
+    var savedCarts = sessionStorage.getItem('cart');
+    if (savedCarts) {
+      this.$store.state.groupedListing = JSON.parse(savedCarts);
+      this.$store.commit('countCart');
+      this.$store.commit('countTotal');
+    }
+  },
+  watch: {
+    showCart: function(val) {
+      var bod = document.getElementsByTagName('body');
+      bod[0].style.overflow = val ? 'hidden' : 'auto';
     }
   }
 };
@@ -46,6 +153,7 @@ export default {
       margin-right: 10px;
       display: flex;
       align-items: center;
+      cursor: pointer;
 
       > img {
         height: 75%;
@@ -77,6 +185,183 @@ export default {
     box-shadow: 0 0 10px 0px gray;
     background-color: white;
   }
+
+  > .details-popup {
+    background-color: rgba(128,128,128,0.5);
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 20;
+
+    > .details-content {
+      padding: 5px;
+      background-color: white;
+      max-width: 80%;
+
+      > .title {
+        font-size: 1.2em;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      > .description {
+        text-align: center;
+      }
+      
+      > button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 10px;
+      }
+
+      > .cancel {
+        background-color: red;
+        color: white;
+      }
+    }
+  }
+}
+
+.cart-section {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 5;
+}
+
+.cart-background {
+  background: rgba(128,128,128,0.5);
+  left: 0;
+}
+
+.cart-container {
+  right: 0;
+  max-width: 400px;
+  width: 80%;
+  background-color: white;
+  padding: 5px;
+  overflow: auto;
+
+  > .close-icon {
+    position: fixed;
+    height: 25px;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  > .cart-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    position: sticky;
+    top: -5px;
+    background-color: white;
+    z-index: 1;
+  }
+
+  > .checkout-btn, > .pricing-table {
+    padding: 10px 15px;
+    position: fixed;
+    bottom: 5px;
+    max-width: 400px;
+    width: 80%;
+  }
+
+  > .cart-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid gray;
+    border-radius: 5px;
+    margin: 5px 0;
+    padding: 10px;
+    position: relative;
+
+    > .cupcake-name-cart {
+      font-weight: bold;
+    }
+    
+    > .qty-container {
+      display: flex;
+      align-items: center;
+
+      > .qty {
+        width: 30px;
+        text-align: center;
+      }
+
+      > .add-minus-button {
+        border: 1px solid gray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: bolder;
+        height: 20px;
+        width: 20px;
+        border-radius: 100%;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      > .total-per-item {
+        margin-left: 10px;
+      }
+    }
+
+    > .small-img {
+      position: absolute;
+      right: 10px;
+      height: calc(100% - 20px);
+    }
+  }
+
+  > .pricing-table {
+    bottom: 40px;
+    padding: 5px;
+    background-color: white;
+
+    > .pricing {
+      display: flex;
+      align-items: center;
+
+      > .price {
+        flex-grow: 1;
+        text-align: right;
+        padding-right: 10px;
+      }
+    }
+
+    > .horizontal-line {
+      height: 1px;
+      background-color: black;
+      width: calc(100% - 10px);
+    }
+  }
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active {
+  transition: all .3s ease;
+}
+.slide-leave-active {
+  transition: all .3s ease;
+}
+.slide-enter, .slide-leave-to {
+  transform: translateX(100%);
 }
 </style>
 
@@ -84,5 +369,14 @@ export default {
 body {
   margin: 0;
   font-family: 'Baloo 2', cursive;
+}
+
+button {
+  border-radius: 10px;
+  border: none;
+  background-color: lime;
+  padding: 0 15px;
+  cursor: pointer;
+  font-weight: bold;
 }
 </style>
