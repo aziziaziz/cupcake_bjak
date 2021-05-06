@@ -14,15 +14,22 @@
         No cupcakes available at the moment.<br />Please come back later.
       </div>
     </div>
+    <div class="toast position-absolute top-1 end-0 my-toast" data-bs-delay="1000">
+      <div class="toast-body">
+        Added 1 {{ selectedCupcake }} into your cart
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable */
 export default {
   components: {
   },
   data: function() {
     return {
+      selectedCupcake: ''
     }
   },
   props: {
@@ -39,6 +46,9 @@ export default {
       sessionStorage.setItem('cart', JSON.stringify(this.$store.state.groupedListing));
       this.$store.commit('countCart');
       this.$store.commit('countTotal');
+
+      this.selectedCupcake = item['name'];
+      $('.toast').toast('show');
     }
   },
   mounted() {
@@ -117,6 +127,13 @@ $card-size: 200px;
 
 .no-cupcakes {
   text-align: center;
+}
+
+.my-toast {
+  margin-right: 10px;
+  background: limegreen;
+  box-shadow: 0 25px 20px -10px grey;
+  border-radius: 10px;
 }
 
 @media only screen and (max-width: 500px) {
