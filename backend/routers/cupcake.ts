@@ -19,9 +19,8 @@ async function getDefaultCupCakes(req, res) {
 }
 
 async function insert(req, res) {
-  var currentUser = await getAllCupcakes(null, null);
-  var hasUser = currentUser.filter(c => c['name'].toLowerCase() == req.body['name'].toLowerCase());
-  if (hasUser.length > 0) {
+  var exists = await getCupcakesByName(req.body['name']);
+  if (exists > 0) {
     res.status(400);
     res.send({ inserted: false, insertCount: 0, message: `Cannot insert ${req.body['name']}. ${req.body['name']} already exist.` });
   } else {
@@ -43,12 +42,15 @@ async function getAllCupcakes(req, res) {
   var result = [];
   await dbResult.forEach(r => result.push(r));
   // result.forEach(r => delete r['_id']);
+  
+  res.send(result);
+}
 
-  if (res) {
-    res.send(result);
-  } else {
-    return result;
-  }
+async function getCupcakesByName(name) {
+  const mongo = await listingConn.getCollection();
+  var regex = new RegExp(["", name, ""].join(""), "i");
+  var result = await mongo.find({ 'name': regex });
+  return await result.count();
 }
 
 export default app;
