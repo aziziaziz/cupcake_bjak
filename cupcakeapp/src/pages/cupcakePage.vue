@@ -2,15 +2,15 @@
   <div class="cupcake-main">
     <div class="title">Choose your cupcakes</div>
     <div class="cupcakes-container">
-      <div class="cupcakes-card" v-for="(c, i) in cupcakesList" :key="i">
+      <div class="cupcakes-card" v-for="(c, i) in $store.state.cupcakeListing" :key="i">
         <img class="cupcake-image" :class="{ 'image-no-stock': c['quantity'] == 0 }" :src="c['image']" alt="">
         <div class="cupcake-name">{{ c['name'] }}</div>
         <div class="price">RM {{ c['price'] ? c['price'].toFixed(2) : '' }}/pc</div>
         <div class="availability">Available: {{ c['quantity'] }} pcs</div>
-        <button v-if="c['quantity'] > 0" class="add-cart" @click="addClicked">Add to Cart</button>
+        <button v-if="c['quantity'] > 0" class="add-cart" @click="addClicked(c)">Add to Cart</button>
         <div v-else class="no-stock">Out Of Stock</div>
       </div>
-      <div v-if="cupcakesList.length <= 0" class="no-cupcakes">
+      <div v-if="$store.state.cupcakeListing.length <= 0" class="no-cupcakes">
         No cupcakes available at the moment.<br />Please come back later.
       </div>
     </div>
@@ -23,21 +23,25 @@ export default {
   },
   data: function() {
     return {
-      cupcakesList: []
     }
   },
   props: {
   },
   methods: {
-    addClicked: function() {
-      var number = Math.random() * 25;
-      this.$store.state.cartCount = Math.ceil(number);
-      this.$cookies.set('test', Math.ceil(number));
+    addClicked: function(item) {
+      var exists = this.$store.state.groupedListing.filter(g => g['id'] == item['_id']);
+      if (exists.length > 0) {
+        exists[0]['qty']++;
+      } else {
+        this.$store.state.groupedListing.push({ id: item['_id'], cupcake: item, qty: 1 });
+      }
+      
+      sessionStorage.setItem('cart', JSON.stringify(this.$store.state.groupedListing));
+      this.$store.commit('countCart');
+      this.$store.commit('countTotal');
     }
   },
-  async mounted() {
-    var allCupcakes = await this.$axios.get('/cupcake/get');
-    this.cupcakesList = allCupcakes.data;
+  mounted() {
   }
 };
 </script>
@@ -102,15 +106,6 @@ $card-size: 200px;
   position: absolute;
   bottom: 5px;
   height: 30px;
-}
-
-.add-cart {
-  border-radius: 10px;
-  border: none;
-  background-color: lime;
-  padding: 0 15px;
-  cursor: pointer;
-  font-weight: bold;
 }
 
 .no-stock {
