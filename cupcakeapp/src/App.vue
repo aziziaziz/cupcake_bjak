@@ -191,6 +191,11 @@ export default {
       this.$store.state.groupedListing = JSON.parse(savedCarts);
       this.$store.commit('countCart');
       this.$store.commit('countTotal');
+
+      this.$store.state.groupedListing.forEach((g) => {
+        var cupcake = this.$store.state.cupcakeListing.filter(c => c['_id'] == g['id'])[0];
+        cupcake['quantity'] -= g['qty'];
+      });
     }
   },
   watch: {
