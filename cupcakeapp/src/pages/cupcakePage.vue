@@ -43,6 +43,9 @@ export default {
         this.$store.state.groupedListing.push({ id: item['_id'], cupcake: item, qty: 1 });
       }
       
+      var cupcake = this.$store.state.cupcakeListing.filter(c => c['_id'] == item['_id']);
+      cupcake[0].quantity--;
+      
       sessionStorage.setItem('cart', JSON.stringify(this.$store.state.groupedListing));
       this.$store.commit('countCart');
       this.$store.commit('countTotal');
