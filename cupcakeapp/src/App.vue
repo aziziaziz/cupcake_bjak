@@ -83,9 +83,14 @@ export default {
   },
   methods: {
     changeQuantity: function(item, add) {
+      var cupcake = this.$store.state.cupcakeListing.filter(c => c['_id'] == item['id'])[0];
       if (add) {
-        item['qty']++;
+        if (cupcake['quantity'] > 0) {
+          cupcake['quantity']--;
+          item['qty']++;
+        }
       } else {
+        cupcake['quantity']++;
         item['qty']--;
 
         if (item['qty'] == 0) {
