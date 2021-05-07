@@ -114,36 +114,72 @@ export default {
         console.log('error');
         return;
       }
+
+      var d = new Date();
+      var orderDetails = {
+        name: this.name,
+        phone: this.phone,
+        location: this.location,
+        orders: [],
+        total: this.$store.state.total,
+        orderTime: `${this.padNumber(d.getDate())}/${this.padNumber(d.getMonth() + 1)}/${d.getFullYear()} ${this.padNumber(d.getHours())}:${this.padNumber(d.getMinutes())}:${this.padNumber(d.getSeconds())}`
+      };
       
       var toUpdate = [];
       for (var g of this.$store.state.groupedListing) {
         toUpdate.push({ id: g['id'], qty: g['qty'] });
+        var cupcakeName = this.$store.state.cupcakeListing.filter(c => c['_id'] == g['id'])[0]['name'];
+        orderDetails['orders'].push({
+          cupcake: cupcakeName,
+          qty: g['qty']
+        });
       }
 
-      var updated = await this.$axios.patch('/cupcake/update', toUpdate);
-      updated.data.forEach((u) => {
-        if (u['updated']) {
-          var currentCupcake = this.$store.state.cupcakeListing.filter(c => c['_id'] == u['id'])[0];
-          currentCupcake['quantity'] = u['newQuantity'];
-        }
-      });
-      this.$store.state.groupedListing = [];
-      sessionStorage.removeItem('cart');
-      this.$store.commit('countCart');
-      this.$store.commit('countTotal');
+      var submitOrder = await this.$axios.post('/cupcake/orders', orderDetails);
+      if (submitOrder.data['inserted']) {
+        var updated = await this.$axios.patch('/cupcake/update', toUpdate);
+        updated.data.forEach((u) => {
+          if (u['updated']) {
+            var currentCupcake = this.$store.state.cupcakeListing.filter(c => c['_id'] == u['id'])[0];
+            currentCupcake['quantity'] = u['newQuantity'];
+          }
+        });
+        this.$store.state.groupedListing = [];
+        sessionStorage.removeItem('cart');
+        this.$store.commit('countCart');
+        this.$store.commit('countTotal');
 
-      this.name = '';
-      this.phone = '';
-      this.location = '';
+        this.name = '';
+        this.phone = '';
+        this.location = '';
 
-      this.showDetails = false;
-      this.showCart = false;
-
-      Swal.fire(
-        'Checkout Complete',
-        `We've received your order. We will contact you soon. Thank you for shopping with us!`,
-        'success'
-      );
+        this.showDetails = false;
+        this.showCart = false;
+        
+        Swal.fire(
+          'Checkout Complete',
+          `We've received your order. We will contact you soon.
+          
+          Your order number is ${submitOrder.data['orderNo']}.
+          Thank you for shopping with us!`,
+          'success'
+        );
+      } else {
+        Swal.fire(
+          'Checkout Error',
+          `Oops! There was an error while trying to submit your order. Please try again.`,
+          'error'
+        );
+      }
+    },
+    padNumber: function(num) {
+      var numStr = num.toString();
+      
+      if (numStr.length < 2) {
+        return `0${numStr}`;
+      } else {
+        return numStr;
+      }
     }
   },
   async mounted() {
@@ -193,10 +229,10 @@ export default {
       > .cart-count {
         position: absolute;
         bottom: 5px;
-        right: 0;
+        right: -5px;
         z-index: 1;
         background-color: lime;
-        padding: 5px;
+        padding: 10px;
         border-radius: 100%;
         font-size: 0.6em;
         width: 10px;
