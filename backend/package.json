@@ -12,6 +12,7 @@
   "author": "AziziAziz",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.10",
     "@types/express": "^4.17.11",
     "cors": "^2.8.5",
     "express": "^4.17.1",
