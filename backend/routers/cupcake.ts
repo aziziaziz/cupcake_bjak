@@ -6,6 +6,7 @@ const cup = require('../files/defaultCupcake.json');
 const objID = mongoDB.ObjectID;
 
 const listingConn = new mongoConn('cupcake', 'cupcakeListing');
+const orderConn = new mongoConn('cupcake', 'orderListing');
 
 const app = express.Router();
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -13,15 +14,20 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.raw());
 
 app.get('/', getDefaultCupCakes);
-app.get('/default', insertDefaultCupcakes);
-app.patch('/update', updateCupcake);
-app.post('/insert', insert);
-app.get('/get', getAllCupcakes);
-
 async function getDefaultCupCakes(req, res) {
-  res.send(cup);
+  // res.send(cup);
+  // var mongoCup = await listingConn.getCollection();
+  // var result = await mongoCup.find();
+  // listingConn.printMe();
+  // console.log(await result.count());
+
+  // var mongoOrder = await orderConn.getCollection();
+  // var result2 = await mongoOrder.find();
+  // orderConn.printMe();
+  // console.log(await result2.count());
 }
 
+app.get('/default', insertDefaultCupcakes);
 async function insertDefaultCupcakes(req, res) {
   var mongo = await listingConn.getCollection();
   await mongo.deleteMany();
@@ -30,10 +36,12 @@ async function insertDefaultCupcakes(req, res) {
   if (result.insertedCount == cup.length) {
     res.send({ inserted: true, insertCount: result.insertedCount, message: `Successfully inserted all the default values` });
   } else {
+    res.status(400);
     res.send({ inserted: false, insertCount: result.insertedCount, message: `${result.insertedCount} of ${cup.length} inserted` });
   }
 }
 
+app.patch('/update', updateCupcake);
 async function updateCupcake(req, res) {
   var result = [];
   var body = req.body;
@@ -60,6 +68,7 @@ async function updateCupcake(req, res) {
   res.send(result);
 }
 
+app.post('/insert', insert);
 async function insert(req, res) {
   var exists = await getCupcakesByName(req.body['name']);
   if (exists > 0) {
@@ -72,11 +81,13 @@ async function insert(req, res) {
     if (result.insertedCount > 0) {
       res.send({ inserted: true, insertCount: result.insertedCount, message: `Inserted ${result.insertedCount} cupcake${result.insertedCount > 0 ? 's' : ''}` });
     } else {
+      res.status(400);
       res.send({ inserted: false, insertCount: result.insertedCount, message: `Failed to insert cupcake into db. Please try again.` });
     }
   }
 }
 
+app.get('/get', getAllCupcakes);
 async function getAllCupcakes(req, res) {
   const mongo = await listingConn.getCollection();
   var dbResult = await mongo.find();
@@ -86,6 +97,38 @@ async function getAllCupcakes(req, res) {
   // result.forEach(r => delete r['_id']);
   
   res.send(result);
+}
+
+app.post('/orders', addOrders);
+async function addOrders(req, res) {
+  var mongo = await orderConn.getCollection();
+  var result = await mongo.insertOne(req.body);
+    
+  if (result.insertedCount > 0) {
+    res.send({
+      inserted: true,
+      insertCount: result.insertedCount,
+      message: `Inserted ${result.insertedCount} order${result.insertedCount > 0 ? 's' : ''}`,
+      orderNo: result.insertedId
+    });
+  } else {
+    res.send({ inserted: false, insertCount: result.insertedCount, message: `Failed to insert orders into db. Please try again.` });
+  }
+
+  orderConn.close();
+}
+
+app.get('/orders', getOrders);
+async function getOrders(req, res) {
+  var mongo = await orderConn.getCollection();
+  var dbResult = await mongo.find();
+
+  var result = [];
+  await dbResult.forEach(r => result.push(r));
+
+  res.send(result);
+
+  orderConn.close();
 }
 
 async function getCupcakesByName(name) {
