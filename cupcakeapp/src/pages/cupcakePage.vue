@@ -70,7 +70,7 @@ $card-size: 200px;
 }
 
 .title {
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: bold;
   width: 100%;
   text-align: center;
