@@ -1,13 +1,21 @@
 <template>
   <div class="app-main">
     <div class="top-bar">
-      <div class="cart-icon" @click="showCart = true">
+      <div class="title">The Cupcake Company</div>
+      <div v-if="showCartIcon" class="cart-icon" @click="showCart = true">
         <img src="./assets/cart.png" alt="">
         <div class="cart-count" v-if="$store.state.cartCount > 0">{{ $store.state.cartCount }}</div>
       </div>
     </div>
     <router-view style="margin-bottom: 60px"></router-view>
-    <div class="bottom-bar"></div>
+    <div class="bottom-bar">
+      <div class="copyright-msg">ⓒ The Cupcake Company 2021</div>
+      <div style="flex-grow: 1"></div>
+      <img @click="socMedClicked()" src="./assets/iglogo.png" alt="">
+      <img @click="socMedClicked()" src="./assets/twitterlogo.png" alt="">
+      <img @click="socMedClicked()" src="./assets/fblogo.png" alt="">
+      <img @click="socMedClicked('linkedin')" src="./assets/linkedinlogo.png" alt="">
+    </div>
     <transition name="fade">
       <div v-if="showCart" class="cart-section cart-background" @click="showCart = false"></div>
     </transition>
@@ -67,6 +75,7 @@ export default {
   },
   data: function() {
     return {
+      showCartIcon: true,
       showCart: false,
       showDetails: false,
 
@@ -140,9 +149,9 @@ export default {
         });
       }
 
-      var submitOrder = await this.$axios.post('/cupcake/orders', orderDetails);
+      var submitOrder = await this.$axios.post('/orders', orderDetails);
       if (submitOrder.data['inserted']) {
-        var updated = await this.$axios.patch('/cupcake/update', toUpdate);
+        var updated = await this.$axios.patch('/cupcake', toUpdate);
         updated.data.forEach((u) => {
           if (u['updated']) {
             var currentCupcake = this.$store.state.cupcakeListing.filter(c => c['_id'] == u['id'])[0];
@@ -185,10 +194,16 @@ export default {
       } else {
         return numStr;
       }
+    },
+    socMedClicked: function(e) {
+      if (e) {
+        window.open('https://www.linkedin.com/in/aziziazizrahman/', '_blank');
+      }
     }
   },
   async mounted() {
-    var allCupcakes = await this.$axios.get('/cupcake/get');
+    this.showCartIcon = window.location['pathname'].toLowerCase() != '/orders';
+    var allCupcakes = await this.$axios.get('/cupcake');
     this.$store.state.cupcakeListing = allCupcakes.data;
     
     var savedCarts = sessionStorage.getItem('cart');
@@ -221,6 +236,7 @@ export default {
     top: 0;
     background-color: white;
     z-index: 1;
+    display: flex;
 
     > .cart-icon {
       height: 100%;
@@ -252,6 +268,14 @@ export default {
         justify-content: center;
       }
     }
+
+    > .title {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      font-weight: bold;
+    }
   }
 
   > .bottom-bar {
@@ -261,6 +285,14 @@ export default {
     bottom: 0;
     box-shadow: 0 0 10px 0px gray;
     background-color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+
+    > img {
+      height: 60%;
+      cursor: pointer;
+    }
   }
 
   > .details-popup {
@@ -439,6 +471,12 @@ export default {
 }
 .slide-enter, .slide-leave-to {
   transform: translateX(100%);
+}
+
+@media only screen and (max-width: 500px) {
+  .copyright-msg {
+    font-size: 0.75em;
+  }
 }
 </style>
 
