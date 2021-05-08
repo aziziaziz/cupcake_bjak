@@ -11,9 +11,9 @@
     <div class="bottom-bar">
       <div class="copyright-msg">ⓒ The Cupcake Company 2021</div>
       <div style="flex-grow: 1"></div>
-      <img @click="socMedClicked()" src="./assets/iglogo.png" alt="">
-      <img @click="socMedClicked()" src="./assets/twitterlogo.png" alt="">
-      <img @click="socMedClicked()" src="./assets/fblogo.png" alt="">
+      <img class="low-opac" @click="socMedClicked()" src="./assets/iglogo.png" alt="">
+      <img class="low-opac" @click="socMedClicked()" src="./assets/twitterlogo.png" alt="">
+      <img class="low-opac" @click="socMedClicked()" src="./assets/fblogo.png" alt="">
       <img @click="socMedClicked('linkedin')" src="./assets/linkedinlogo.png" alt="">
     </div>
     <transition name="fade">
@@ -202,7 +202,7 @@ export default {
     }
   },
   async mounted() {
-    this.showCartIcon = window.location['pathname'].toLowerCase() != '/orders';
+    this.showCartIcon = window.location['pathname'].toLowerCase() == '/';
     var allCupcakes = await this.$axios.get('/cupcake');
     this.$store.state.cupcakeListing = allCupcakes.data;
     
@@ -292,6 +292,10 @@ export default {
     > img {
       height: 60%;
       cursor: pointer;
+    }
+
+    > .low-opac {
+      opacity: 0.5;
     }
   }
 
