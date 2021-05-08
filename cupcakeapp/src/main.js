@@ -8,6 +8,7 @@ import Cookies from 'vue-cookies'
 
 import Cupcake from './pages/cupcakePage'
 import Orders from './pages/ordersPage'
+import Add from './pages/addCupcakePage'
 
 import Input from './components/MyInput'
 
@@ -27,7 +28,8 @@ Vue.$cookies.config('6h')
 const router = new Router({
   routes: [
     { path: '/', component: Cupcake, meta: { title: 'Cup Cakes' } },
-    { path: '/Orders', component: Orders, meta: { title: 'All Orders' } }
+    { path: '/Orders', component: Orders, meta: { title: 'All Orders' } },
+    { path: '/New', component: Add, meta: { title: 'Add Cupcake' } }
   ],
   mode: 'history'
 })
