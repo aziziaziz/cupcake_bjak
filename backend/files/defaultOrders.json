@@ -1,0 +1,99 @@
+[
+  {
+    "name": "Azizi",
+    "phone": "+60123456789",
+    "location": "Klang",
+    "orders": [
+      {
+        "cupcake": "Black Velvet Cupcake",
+        "qty": 2
+      },
+      {
+        "cupcake": "Strawberry Cupcake",
+        "qty": 1
+      }
+    ],
+    "total": 15.052000000000001,
+    "orderTime": "08/05/2021 14:09:52"
+  },
+  {
+    "name": "Bobby",
+    "phone": "+6014577878",
+    "location": "Shah Alam",
+    "orders": [
+      {
+        "cupcake": "Chocolate Cupcake",
+        "qty": 1
+      },
+      {
+        "cupcake": "Banana Cupcake",
+        "qty": 2
+      }
+    ],
+    "total": 11.554,
+    "orderTime": "08/05/2021 14:25:30"
+  },
+  {
+    "name": "John Doe",
+    "phone": "+60185547887",
+    "location": "KLCC Floor 42",
+    "orders": [
+      {
+        "cupcake": "Chocolate Cupcake",
+        "qty": 4
+      }
+    ],
+    "total": 19.08,
+    "orderTime": "08/05/2021 14:46:11"
+  },
+  {
+    "name": "Jane Doe",
+    "phone": "+60154454545",
+    "location": "KL Tower top floor",
+    "orders": [
+      {
+        "cupcake": "Durian Cupcake",
+        "qty": 1
+      },
+      {
+        "cupcake": "Chocolate Cupcake",
+        "qty": 1
+      },
+      {
+        "cupcake": "Banana Cupcake",
+        "qty": 1
+      },
+      {
+        "cupcake": "Strawberry Cupcake",
+        "qty": 1
+      },
+      {
+        "cupcake": "Black Velvet Cupcake",
+        "qty": 1
+      }
+    ],
+    "total": 23.32,
+    "orderTime": "08/05/2021 14:46:42"
+  },
+  {
+    "name": "Uinnnn",
+    "phone": "+60198998989",
+    "location": "Apartment second floor third door from the right. Got black slipper",
+    "orders": [
+      {
+        "cupcake": "Strawberry Cupcake",
+        "qty": 10
+      },
+      {
+        "cupcake": "Durian Cupcake",
+        "qty": 3
+      },
+      {
+        "cupcake": "Chocolate Cupcake",
+        "qty": 1
+      }
+    ],
+    "total": 67.31,
+    "orderTime": "08/05/2021 15:13:19"
+  }
+]
