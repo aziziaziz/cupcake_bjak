@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import details from '../routers/getDetails';
+
 import cupcake from '../routers/cupcake';
+import orders from '../routers/orders';
 
 const corsOptions = {
   origin: 'http://localhost:8080'
@@ -16,8 +17,8 @@ app.get('/', (req, res) => {
   res.send('Yes I did in ts file!');
 });
 
-app.use('/details', details);
 app.use('/cupcake', cupcake);
+app.use('/orders', orders);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
