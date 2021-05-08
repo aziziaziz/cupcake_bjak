@@ -1,11 +1,13 @@
 <template>
   <div class="rz-input-main">
-    <div class="placeholder-box" :class="[ inputFocus ? 'placeholder-top' : (privText ? 'placeholder-top' : 'placeholder-bottom') ]">
+    <div class="placeholder-box" :class="[ inputFocus ? 'placeholder-top' : (privText ? 'placeholder-top' : (privNumberText ? 'placeholder-top' : 'placeholder-bottom')) ]">
       <span class="required-ind" v-if="required">**</span>
       <span>{{ placeholder }}</span>
     </div>
-    <input :class="[ privType == 'password' ? 'password-input' : '' ]" :type="showPass ? 'text' : privType" 
+    <input v-if="privType != 'number'" :class="[ privType == 'password' ? 'password-input' : '' ]" :type="showPass ? 'text' : privType" 
       v-model="privText" @focus="inputStateChanged(true)" @blur="inputStateChanged(false)" ref="myInput">
+    <input v-else type="number" v-model.number="privNumberText"
+      @focus="inputStateChanged(true)" @blur="inputStateChanged(false)" ref="myInput">
     <div v-if="privText" class="circle-text" :class="[ privType == 'password' ? 'clear-password' : '' ]" @click="clearTextClicked">ｘ</div>
     <button tabindex="-1" v-if="privType == 'password' && privText" class="show-hide-pass" @click="showPassClicked">{{ showPass ? 'Hide' : 'Show' }}</button>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
@@ -19,15 +21,17 @@ export default {
   },
   data: function() {
     return {
-      inputTypeList: [ 'text', 'password' ],
+      inputTypeList: [ 'text', 'password', 'number' ],
       privText: '',
       privType: 'text',
+      privNumberText: 0,
       inputFocus: false,
       showPass: false,
     }
   },
   props: {
     text: { type: String, default: '' },
+    numberText: { type: Number, default: 0 },
     placeholder: { type: String, default: 'Placeholder' },
     required: { type: Boolean, default: false },
     type: { type: String, default: 'text' },
@@ -40,6 +44,7 @@ export default {
     },
     clearTextClicked: function() {
       this.privText = '';
+      this.privNumberText = 0;
       this.$refs['myInput'].focus();
     },
     showPassClicked: function() {
@@ -55,6 +60,10 @@ export default {
       this.privText = this.text;
     }
 
+    if (this.numberText) {
+      this.privNumberText = this.numberText;
+    }
+
     if (this.type) {
       if (this.inputTypeList.includes(this.type)) {
         this.privType = this.type;
@@ -67,8 +76,14 @@ export default {
     privText: function(val) {
       this.$emit('update:text', val);
     },
+    privNumberText: function(val) {
+      this.$emit('update:numberText', val);
+    },
     text: function(val) {
       this.privText = val;
+    },
+    numberText: function(val) {
+      this.privNumberText = val;
     },
     type: function(val) {
       if (val) {
