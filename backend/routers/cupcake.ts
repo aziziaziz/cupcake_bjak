@@ -13,20 +13,6 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.raw());
 
-app.get('/', getDefaultCupCakes);
-async function getDefaultCupCakes(req, res) {
-  // res.send(cup);
-  // var mongoCup = await listingConn.getCollection();
-  // var result = await mongoCup.find();
-  // listingConn.printMe();
-  // console.log(await result.count());
-
-  // var mongoOrder = await orderConn.getCollection();
-  // var result2 = await mongoOrder.find();
-  // orderConn.printMe();
-  // console.log(await result2.count());
-}
-
 app.get('/default', insertDefaultCupcakes);
 async function insertDefaultCupcakes(req, res) {
   var mongo = await listingConn.getCollection();
@@ -41,7 +27,7 @@ async function insertDefaultCupcakes(req, res) {
   }
 }
 
-app.patch('/update', updateCupcake);
+app.patch('/', updateCupcake);
 async function updateCupcake(req, res) {
   var result = [];
   var body = req.body;
@@ -68,7 +54,7 @@ async function updateCupcake(req, res) {
   res.send(result);
 }
 
-app.post('/insert', insert);
+app.post('/', insert);
 async function insert(req, res) {
   var exists = await getCupcakesByName(req.body['name']);
   if (exists > 0) {
@@ -87,7 +73,7 @@ async function insert(req, res) {
   }
 }
 
-app.get('/get', getAllCupcakes);
+app.get('/', getAllCupcakes);
 async function getAllCupcakes(req, res) {
   const mongo = await listingConn.getCollection();
   var dbResult = await mongo.find();
@@ -97,38 +83,6 @@ async function getAllCupcakes(req, res) {
   // result.forEach(r => delete r['_id']);
   
   res.send(result);
-}
-
-app.post('/orders', addOrders);
-async function addOrders(req, res) {
-  var mongo = await orderConn.getCollection();
-  var result = await mongo.insertOne(req.body);
-    
-  if (result.insertedCount > 0) {
-    res.send({
-      inserted: true,
-      insertCount: result.insertedCount,
-      message: `Inserted ${result.insertedCount} order${result.insertedCount > 0 ? 's' : ''}`,
-      orderNo: result.insertedId
-    });
-  } else {
-    res.send({ inserted: false, insertCount: result.insertedCount, message: `Failed to insert orders into db. Please try again.` });
-  }
-
-  orderConn.close();
-}
-
-app.get('/orders', getOrders);
-async function getOrders(req, res) {
-  var mongo = await orderConn.getCollection();
-  var dbResult = await mongo.find();
-
-  var result = [];
-  await dbResult.forEach(r => result.push(r));
-
-  res.send(result);
-
-  orderConn.close();
 }
 
 async function getCupcakesByName(name) {
